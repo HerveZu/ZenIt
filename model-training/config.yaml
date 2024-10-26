@@ -1,0 +1,23 @@
+path: ZenIt
+
+train: train/images
+val: valid/images
+test: test/images
+
+names: 
+  0: black-hold
+  1: black-pink-hold
+  2: black-white-hold
+  3: black-yellow-hold
+  4: blue-hold
+  5: brown-hold
+  6: cyan-hold
+  7: gray-hold
+  8: green-hold
+  9: orange-hold
+  10: pink-hold
+  11: purple-hold
+  12: red-hold
+  13: white-hold
+  14: yellow-hold
+  15: yellow-purple-hold
