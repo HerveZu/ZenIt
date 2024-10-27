@@ -1,0 +1,9 @@
+@BaseUrl = https://localhost:7014
+
+POST {{BaseUrl}}/enroll/gym
+Content-Type: application/json
+
+{
+  "code": "lcub",
+  "name": "LE CUBE"
+}
