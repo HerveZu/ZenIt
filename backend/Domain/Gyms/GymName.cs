@@ -20,9 +20,4 @@ public sealed record GymName
     }
 
     public string Value { get; }
-
-    public static implicit operator string(GymName name)
-    {
-        return name.Value;
-    }
 }

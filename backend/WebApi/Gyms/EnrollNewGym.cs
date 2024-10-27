@@ -46,7 +46,7 @@ internal sealed class EnrollNewGym(AppDbContext context) : Endpoint<EnrollNewGym
     public override async Task HandleAsync(EnrollNewGymRequest req, CancellationToken ct)
     {
         var isCodeDuplicated = await context.Set<Gym>()
-            .AnyAsync(gym => gym.Code == req.Code, ct);
+            .AnyAsync(gym => gym.Code == new GymCode(req.Code), ct);
 
         if (isCodeDuplicated)
         {
@@ -62,8 +62,8 @@ internal sealed class EnrollNewGym(AppDbContext context) : Endpoint<EnrollNewGym
             new EnrollNewGymResponse
             {
                 Id = gym.Id,
-                Code = gym.Code,
-                Name = gym.Name
+                Code = gym.Code.Value,
+                Name = gym.Name.Value
             },
             (int)HttpStatusCode.Created,
             ct);

@@ -66,10 +66,10 @@ internal sealed class EnrollGymTests : IntegrationTestsBase
     }
     
     [CancelAfter(10_000)]
-    [Test]
-    public async Task EnrollGym__WhenCodeIsNotUnique__ShouldBadRequest(CancellationToken cancellationToken)
+    [TestCase("code")]
+    [TestCase("CODE")]
+    public async Task EnrollGym__WhenCodeIsNotUnique__ShouldBadRequest(string duplicatedCode, CancellationToken cancellationToken)
     {
-        const string duplicatedCode = "CODE";
         var client = ApplicationFactory.CreateClient();
         
         await client.PostAsync(

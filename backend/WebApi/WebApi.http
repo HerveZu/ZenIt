@@ -1,6 +1,6 @@
 @BaseUrl = https://localhost:7014
 
-POST {{BaseUrl}}/enroll/gym
+POST {{BaseUrl}}/gyms/enroll
 Content-Type: application/json
 
 {

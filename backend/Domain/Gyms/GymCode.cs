@@ -15,11 +15,6 @@ public sealed partial record GymCode
     }
 
     public string Value { get; }
-
-    public static implicit operator string(GymCode code)
-    {
-        return code.Value;
-    }
     
     [GeneratedRegex("^[A-Z]{4}$")]
     private static partial Regex Regex();
