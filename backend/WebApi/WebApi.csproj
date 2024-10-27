@@ -26,8 +26,8 @@
       <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Common\" />
-    </ItemGroup>
+    <PropertyGroup>
+        <NoWarn>7022</NoWarn>
+    </PropertyGroup>
 
 </Project>
