@@ -1,8 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 using NUnit.Framework;
-using WebApi.Gyms;
-using WebApi.Gyms.Contracts;
+using WebApi.GymManagement;
+using WebApi.GymManagement.Contracts;
 
 namespace IntegrationTests;
 

@@ -1,5 +1,6 @@
 @BaseUrl = https://localhost:7014
 
+### Enroll a gym
 POST {{BaseUrl}}/gyms/enroll
 Content-Type: application/json
 
@@ -7,3 +8,12 @@ Content-Type: application/json
   "code": "lcub",
   "name": "LE CUBE"
 }
+
+### Set a bouldering route
+POST {{BaseUrl}}/routes/set
+Content-Type: application/json
+
+{
+  "gymId": "0192ce52-8873-7fc8-82dd-f96224a013ff"
+}
+

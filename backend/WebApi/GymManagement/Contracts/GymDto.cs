@@ -1,6 +1,6 @@
 using Domain.Gyms;
 
-namespace WebApi.Gyms.Contracts;
+namespace WebApi.GymManagement.Contracts;
 
 [Serializable]
 internal sealed record GymDto

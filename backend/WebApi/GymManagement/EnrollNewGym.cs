@@ -3,9 +3,9 @@ using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Common.Infrastructure;
-using WebApi.Gyms.Contracts;
+using WebApi.GymManagement.Contracts;
 
-namespace WebApi.Gyms;
+namespace WebApi.GymManagement;
 
 [Serializable]
 internal sealed record EnrollNewGymRequest
