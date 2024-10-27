@@ -17,8 +17,10 @@ public sealed class BoulderingRoute
     public BoulderingRouteCode Code { get; init; }
     public uint Index { get; init; }
 
-    public static BoulderingRoute Set(Guid gymId, string gymCode, uint routeIndex)
+    public static BoulderingRoute Set(Guid gymId, string gymCode, uint[] usedRoutesIndexes)
     {
+        var routeIndex = BoulderingRouteCode.NextAvailableIndex(usedRoutesIndexes);
+
         return new BoulderingRoute(
             Guid.CreateVersion7(),
             gymId,
@@ -38,7 +40,7 @@ internal sealed class BoulderingRouteConfiguration : IEntityConfiguration<Boulde
         builder
             .Property(route => route.Code)
             .HasConversion(
-                code => code.Value, 
+                code => code.Value,
                 code => new BoulderingRouteCode(code))
             .HasMaxLength(8);
     }

@@ -37,30 +37,12 @@ internal sealed class SetBoulderingRoute(AppDbContext dbContext)
             return;
         }
 
-        var orderedIndexes = await (
+        var usedRoutesIndexes = await (
             from route in dbContext.Set<BoulderingRoute>()
             where route.GymId == req.GymId
-            orderby route.Index
             select route.Index).ToArrayAsync(ct);
 
-        var firstIndexWithNextAvailable = orderedIndexes
-            .SkipWhile(
-                (index, i) =>
-                {
-                    if (i >= orderedIndexes.Length - 1)
-                    {
-                        return true;
-                    }
-
-                    return orderedIndexes[i + 1] == index + 1;
-                })
-            .FirstOrDefault(uint.MaxValue);
-
-        var nextAvailableIndex = firstIndexWithNextAvailable == uint.MaxValue
-            ? (uint)orderedIndexes.Length
-            : firstIndexWithNextAvailable + 1;
-
-        if (nextAvailableIndex > BoulderingRouteCode.MaxUniqueCodes)
+        if (usedRoutesIndexes.Length >= BoulderingRouteCode.MaxUniqueCodes)
         {
             ThrowError($"Max route limit for this gym is reached ({BoulderingRouteCode.MaxUniqueCodes})");
             return;
@@ -69,7 +51,7 @@ internal sealed class SetBoulderingRoute(AppDbContext dbContext)
         var boulderingRoute = BoulderingRoute.Set(
             gym.Id,
             gym.Code.Value,
-            nextAvailableIndex);
+            usedRoutesIndexes);
 
         await dbContext.Set<BoulderingRoute>().AddAsync(boulderingRoute, ct);
         await dbContext.SaveChangesAsync(ct);
