@@ -1,7 +1,6 @@
 using Domain.BoulderingRoutes;
 using Domain.Gyms;
 using FastEndpoints;
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Common.Infrastructure;
 
@@ -79,6 +78,7 @@ internal sealed class SetBoulderingRoute(AppDbContext dbContext)
             new SetBoulderingRouteResponse
             {
                 RouteCode = boulderingRoute.Code.Value
-            }, cancellation:ct);
+            },
+            cancellation: ct);
     }
 }
