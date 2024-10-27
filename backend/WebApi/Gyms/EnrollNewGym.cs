@@ -1,9 +1,9 @@
-using System.Net;
 using Domain.Gyms;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Common.Infrastructure;
+using WebApi.Gyms.Contracts;
 
 namespace WebApi.Gyms;
 
@@ -14,20 +14,13 @@ internal sealed record EnrollNewGymRequest
     public required string Name { get; init; }
 }
 
-[Serializable]
-internal sealed record EnrollNewGymResponse
-{
-    public required Guid Id { get; init; }
-    public required string Code { get; init; }
-    public required string Name { get; init; }
-}
-
 internal sealed class EnrollNewGymValidator : Validator<EnrollNewGymRequest>
 {
     public EnrollNewGymValidator()
     {
         RuleFor(x => x.Code)
             .NotEmpty()
+            .Matches("^[a-zA-Z]+$")
             .Length(4);
 
         RuleFor(x => x.Name)
@@ -35,7 +28,7 @@ internal sealed class EnrollNewGymValidator : Validator<EnrollNewGymRequest>
     }
 }
 
-internal sealed class EnrollNewGym(AppDbContext context) : Endpoint<EnrollNewGymRequest, EnrollNewGymResponse>
+internal sealed class EnrollNewGym(AppDbContext context) : Endpoint<EnrollNewGymRequest, GymDto>
 {
     public override void Configure()
     {
@@ -58,14 +51,17 @@ internal sealed class EnrollNewGym(AppDbContext context) : Endpoint<EnrollNewGym
         await context.Set<Gym>().AddAsync(gym, ct);
         await context.SaveChangesAsync(ct);
 
-        await SendAsync(
-            new EnrollNewGymResponse
+        await SendCreatedAtAsync<GetGym>(
+            new
+            {
+                GymId = gym.Id,
+            },
+            new GymDto
             {
                 Id = gym.Id,
                 Code = gym.Code.Value,
                 Name = gym.Name.Value
             },
-            (int)HttpStatusCode.Created,
-            ct);
+            cancellation: ct);
     }
 }

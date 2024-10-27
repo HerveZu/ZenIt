@@ -1,53 +1,46 @@
 using System.Net;
 using System.Net.Http.Json;
-using Domain.Gyms;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using NUnit.Framework;
-using WebApi.Common.Infrastructure;
 using WebApi.Gyms;
+using WebApi.Gyms.Contracts;
 
 namespace IntegrationTests;
 
 internal sealed class EnrollGymTests : IntegrationTestsBase
 {
     [CancelAfter(10_000)]
-    [Test]
-    public async Task EnrollGym__ShouldCreateGymInDb(CancellationToken cancellationToken)
+    [TestCase("TEST", "Test gym")]
+    public async Task GetGym__WhenEnrolled__ShouldReturnEnrolledGym(string code, string name, CancellationToken cancellationToken)
     {
         var client = ApplicationFactory.CreateClient();
         
-        var apiResponse = await client.PostAsync(
+        var enrollmentResponse = await client.PostAsync(
             "/gyms/enroll",
             JsonContent.Create(
                 new EnrollNewGymRequest
                 {
-                    Code = "TEST",
-                    Name = "Test gym"
+                    Code = code,
+                    Name = name
                 }),
             cancellationToken);
 
-        await apiResponse.AssertIsSuccessful(cancellationToken);
+        await enrollmentResponse.AssertIsSuccessful();
         
-        var gym = JsonConvert.DeserializeObject<EnrollNewGymResponse>(
-            await apiResponse.Content.ReadAsStringAsync(cancellationToken))!;
-
-        using var scope = ApplicationFactory.Services.CreateScope();
+        var gymResponse = await client.GetAsync(enrollmentResponse.Headers.Location, cancellationToken);
+        await gymResponse.AssertIsSuccessful();
+        var gym = await gymResponse.Content.ReadFromJsonAsync<GymDto>(cancellationToken);
         
-        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var gymInDb = await dbContext.Set<Gym>().FindAsync([gym.Id], cancellationToken);
-
         Assert.Multiple(() =>
         {
-            Assert.That(gymInDb, Is.Not.Null);
-            Assert.That(gymInDb!.Code.Value, Is.EqualTo(gym.Code));
-            Assert.That(gymInDb.Name.Value, Is.EqualTo(gym.Name));
+            Assert.That(gym!.Code, Is.EqualTo(code));
+            Assert.That(gym.Name, Is.EqualTo(name));
         });
     }
     
     [CancelAfter(10_000)]
     [TestCase("INVALID", "GYM")]
     [TestCase("VGYM", " ")]
+    [TestCase("GYM2", "GYM")]
     public async Task EnrollGym__WhenInvalid__ShouldBadRequest(string code, string name, CancellationToken cancellationToken)
     {
         var client = ApplicationFactory.CreateClient();
@@ -62,7 +55,7 @@ internal sealed class EnrollGymTests : IntegrationTestsBase
                 }),
             cancellationToken);
 
-        Assert.That(apiResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        await apiResponse.AssertIs(HttpStatusCode.BadRequest);
     }
     
     [CancelAfter(10_000)]
@@ -92,6 +85,6 @@ internal sealed class EnrollGymTests : IntegrationTestsBase
                 }),
             cancellationToken);
 
-        Assert.That(apiResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        await apiResponse.AssertIs(HttpStatusCode.BadRequest);
     }
 }
