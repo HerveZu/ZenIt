@@ -26,7 +26,7 @@ builder.Configuration
 builder.Services
     .ConfigureAndValidate<YoloOptions>()
     .ConfigureAndValidate<PostgresOptions>()
-    .AddSingleton<IRouteAnalyser, RouteHoldsYoloAnalyser>()
+    .AddSingleton<IRouteAnalyser, YoloRouteDetector>()
     .AddScoped<IStartupService, MigrateDb>()
     .AddDbContext<AppDbContext>()
     .AddFastEndpoints()

@@ -8,7 +8,7 @@ using YoloDotNet.Extensions;
 
 namespace WebApi.GymManagement;
 
-internal sealed class RouteHoldsYoloAnalyser(IOptions<YoloOptions> yoloOptions) : IRouteAnalyser, IDisposable
+internal sealed class YoloRouteDetector(IOptions<YoloOptions> yoloOptions) : IRouteAnalyser, IDisposable
 {
     private readonly Yolo _model = new(
         new YoloDotNet.Models.YoloOptions
