@@ -8,39 +8,43 @@ using WebApi.Common.Options;
 namespace IntegrationTests;
 
 [TestFixture]
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
+[Parallelizable(ParallelScope.All)]
 internal abstract class IntegrationTestsBase
 {
-    protected WebApplicationFactory<Program> ApplicationFactory { get; private set; }
-    private PostgreSqlContainer _pgContainer;
-    
-    [OneTimeSetUp]
+    [SetUp]
     public async Task SetupEnv()
     {
         _pgContainer = new PostgreSqlBuilder()
             .WithImage("postgres:15-alpine")
             .Build();
-        
+
         await _pgContainer.StartAsync();
-        
+
         ApplicationFactory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureServices(services =>
+            .WithWebHostBuilder(
+                builder =>
                 {
-                    services.AddSingleton(
-                        Options.Create(
-                            new PostgresOptions
-                            {
-                                ConnectionString = _pgContainer.GetConnectionString()
-                            }));
+                    builder.ConfigureServices(
+                        services =>
+                        {
+                            services.AddSingleton(
+                                Options.Create(
+                                    new PostgresOptions
+                                    {
+                                        ConnectionString = _pgContainer.GetConnectionString()
+                                    }));
+                        });
                 });
-            });
     }
 
-    [OneTimeTearDown]
+    [TearDown]
     public async Task TearDownEnv()
     {
         await _pgContainer.DisposeAsync();
         await ApplicationFactory.DisposeAsync();
     }
+
+    protected WebApplicationFactory<Program> ApplicationFactory { get; private set; }
+    private PostgreSqlContainer _pgContainer;
 }
