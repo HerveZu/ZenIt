@@ -10,7 +10,7 @@ public sealed record BoulderingRouteCode(string Value)
     // should be kept low to not having too much to write down on start markers
     private const int CharsCount = 2;
 
-    public static double MaxUniqueCodes => Math.Pow(AvailableChars.Length, CharsCount) - 1;
+    public static double MaxUniqueCodes { get; } = Math.Pow(AvailableChars.Length, CharsCount) - 1;
 
     public static uint NextAvailableIndex(uint[] usedIndexes)
     {
