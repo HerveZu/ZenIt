@@ -11,9 +11,19 @@ Content-Type: application/json
 
 ### Set a bouldering route
 POST {{BaseUrl}}/routes/set
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; filename="routePicture.jpg"; name=routePicture
+Content-Type: image/jpeg
+
+< ../Resource/routePicture.jpg
+--boundary
+Content-Disposition: form-data; name=payload
 Content-Type: application/json
 
 {
-  "gymId": "0192ce52-8873-7fc8-82dd-f96224a013ff"
+  "gymId": "0192d4f2-1019-7300-a89b-6d4aa19c1e73",
+  "color": "yellow"
 }
-
+--boundary--

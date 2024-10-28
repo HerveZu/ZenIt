@@ -1,9 +1,12 @@
+using System.Text.Json.Serialization;
+using Domain.BoulderingRoutes;
 using DotNetEnv;
 using FastEndpoints;
 using Serilog;
 using WebApi;
 using WebApi.Common.Infrastructure;
 using WebApi.Common.Options;
+using WebApi.GymManagement;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,25 +24,29 @@ builder.Configuration
     .Build();
 
 builder.Services
+    .ConfigureAndValidate<YoloOptions>()
     .ConfigureAndValidate<PostgresOptions>()
+    .AddSingleton<IRouteAnalyser, RouteHoldsYoloAnalyser>()
     .AddScoped<IStartupService, MigrateDb>()
     .AddDbContext<AppDbContext>()
     .AddFastEndpoints()
-    .AddOpenApi();
+    .AddOpenApi()
+    .ConfigureHttpJsonOptions(
+        options => { options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
 builder.Host
     .UseSerilog(
-    (_, _, loggerConfiguration) =>
-    {
-        loggerConfiguration
-            .ReadFrom.Configuration(
-                new ConfigurationBuilder()
-                    .AddJsonFile(appSettingsPath)
-                    .Build())
-            .Enrich.FromLogContext()
-            .WriteTo.Console();
-    }
-);
+        (_, _, loggerConfiguration) =>
+        {
+            loggerConfiguration
+                .ReadFrom.Configuration(
+                    new ConfigurationBuilder()
+                        .AddJsonFile(appSettingsPath)
+                        .Build())
+                .Enrich.FromLogContext()
+                .WriteTo.Console();
+        }
+    );
 
 var app = builder.Build();
 
@@ -57,5 +64,5 @@ if (app.Environment.IsDevelopment())
 app
     .UseHttpsRedirection()
     .UseFastEndpoints();
-    
+
 await app.RunAsync();

@@ -2,20 +2,19 @@ using System.Text.RegularExpressions;
 
 namespace Domain.Gyms;
 
-public sealed partial record GymCode
+public sealed record GymCode
 {
+    private readonly Regex _regex = new("^[A-Z]{4}$");
+
     public GymCode(string code)
     {
         Value = code.ToUpper();
-        
-        if (!Regex().IsMatch(Value))
+
+        if (!_regex.IsMatch(Value))
         {
             throw new InvalidOperationException($"Invalid gym code, was '{code}'");
         }
     }
 
     public string Value { get; }
-    
-    [GeneratedRegex("^[A-Z]{4}$")]
-    private static partial Regex Regex();
 }

@@ -25,10 +25,10 @@ internal sealed class GetGym(AppDbContext dbContext) : Endpoint<GetGymRequest, G
 
         if (gym is null)
         {
-            await SendNotFoundAsync(ct);
+            ThrowError($"Gym was not found with id '{req.GymId}'");
             return;
         }
-        
+
         await SendAsync(gym.ToDto(), cancellation: ct);
     }
 }
