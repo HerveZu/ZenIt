@@ -1,11 +1,12 @@
 using Domain.Gyms;
 using FastEndpoints;
+using JetBrains.Annotations;
 using WebApi.Common.Infrastructure;
 using WebApi.GymManagement.Contracts;
 
 namespace WebApi.GymManagement;
 
-[Serializable]
+[PublicAPI]
 internal sealed record GetGymRequest
 {
     public required Guid GymId { get; init; }

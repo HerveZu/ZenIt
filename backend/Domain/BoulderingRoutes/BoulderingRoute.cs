@@ -29,7 +29,7 @@ public sealed class BoulderingRoute
     public BoulderingRouteColor Color { get; init; }
     public byte[]? OriginalPicture { get; private set; }
     public byte[]? MaskedPicture { get; private set; }
-    public ICollection<HoldDetection> DetectedHolds { get; private set; } = [];
+    public IReadOnlyCollection<HoldDetection> DetectedHolds { get; private set; } = [];
 
     public static BoulderingRoute Set(
         Guid gymId,

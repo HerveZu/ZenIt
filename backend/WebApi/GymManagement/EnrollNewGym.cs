@@ -1,13 +1,14 @@
 using Domain.Gyms;
 using FastEndpoints;
 using FluentValidation;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Common.Infrastructure;
 using WebApi.GymManagement.Contracts;
 
 namespace WebApi.GymManagement;
 
-[Serializable]
+[PublicAPI]
 internal sealed record EnrollNewGymRequest
 {
     public required string Code { get; init; }
@@ -45,7 +46,7 @@ internal sealed class EnrollNewGym(AppDbContext context) : Endpoint<EnrollNewGym
         {
             ThrowError(x => x.Code, "Gym code is not unique.");
         }
-        
+
         var gym = Gym.EnrollNew(req.Code, req.Name);
 
         await context.Set<Gym>().AddAsync(gym, ct);

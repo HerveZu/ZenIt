@@ -1,8 +1,9 @@
 using Domain.Gyms;
+using JetBrains.Annotations;
 
 namespace WebApi.GymManagement.Contracts;
 
-[Serializable]
+[PublicAPI]
 internal sealed record GymDto
 {
     public required Guid Id { get; init; }

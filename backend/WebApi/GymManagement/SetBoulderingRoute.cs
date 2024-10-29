@@ -1,15 +1,17 @@
 using Domain.BoulderingRoutes;
 using Domain.Gyms;
 using FastEndpoints;
+using FluentValidation;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Common.Infrastructure;
 
 namespace WebApi.GymManagement;
 
-[Serializable]
+[PublicAPI]
 internal sealed record SetBoulderingRouteRequest
 {
-    [Serializable]
+    [PublicAPI]
     public enum RouteColor
     {
         Yellow
@@ -18,7 +20,7 @@ internal sealed record SetBoulderingRouteRequest
     public required PayloadRequest Payload { get; init; }
     public required IFormFile? RoutePicture { get; init; }
 
-    [Serializable]
+    [PublicAPI]
     public sealed record PayloadRequest
     {
         public required Guid GymId { get; init; }
@@ -26,10 +28,18 @@ internal sealed record SetBoulderingRouteRequest
     }
 }
 
-[Serializable]
+[PublicAPI]
 internal sealed record SetBoulderingRouteResponse
 {
     public required string RouteCode { get; init; }
+}
+
+internal sealed class SetBoulderingRouteValidator : Validator<SetBoulderingRouteRequest>
+{
+    public SetBoulderingRouteValidator()
+    {
+        RuleFor(x => x.Payload).NotNull();
+    }
 }
 
 internal sealed class SetBoulderingRoute(AppDbContext dbContext, IRouteAnalyser routeAnalyser)
