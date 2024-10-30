@@ -20,32 +20,42 @@ namespace WebApi.Migrations
                 defaultValue: "");
 
             migrationBuilder.AddColumn<byte[]>(
-                name: "MaskedPicture",
+                name: "OriginalPicture_Data",
                 table: "BoulderingRoute",
                 type: "bytea",
-                nullable: true);
+                nullable: false,
+                defaultValue: new byte[0]);
 
-            migrationBuilder.AddColumn<byte[]>(
-                name: "OriginalPicture",
+            migrationBuilder.AddColumn<long>(
+                name: "OriginalPicture_OriginalHeight",
                 table: "BoulderingRoute",
-                type: "bytea",
-                nullable: true);
+                type: "bigint",
+                nullable: false,
+                defaultValue: 0L);
+
+            migrationBuilder.AddColumn<long>(
+                name: "OriginalPicture_OriginalWidth",
+                table: "BoulderingRoute",
+                type: "bigint",
+                nullable: false,
+                defaultValue: 0L);
 
             migrationBuilder.CreateTable(
-                name: "HoldDetection",
+                name: "RouteHold",
                 columns: table => new
                 {
                     BoulderingRouteId = table.Column<Guid>(type: "uuid", nullable: false),
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    X = table.Column<int>(type: "integer", nullable: false),
-                    Y = table.Column<int>(type: "integer", nullable: false)
+                    SegmentedPicture = table.Column<byte[]>(type: "bytea", nullable: false),
+                    X = table.Column<double>(type: "double precision", nullable: false),
+                    Y = table.Column<double>(type: "double precision", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_HoldDetection", x => new { x.BoulderingRouteId, x.Id });
+                    table.PrimaryKey("PK_RouteHold", x => new { x.BoulderingRouteId, x.Id });
                     table.ForeignKey(
-                        name: "FK_HoldDetection_BoulderingRoute_BoulderingRouteId",
+                        name: "FK_RouteHold_BoulderingRoute_BoulderingRouteId",
                         column: x => x.BoulderingRouteId,
                         principalTable: "BoulderingRoute",
                         principalColumn: "Id",
@@ -57,18 +67,22 @@ namespace WebApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "HoldDetection");
+                name: "RouteHold");
 
             migrationBuilder.DropColumn(
                 name: "Color",
                 table: "BoulderingRoute");
 
             migrationBuilder.DropColumn(
-                name: "MaskedPicture",
+                name: "OriginalPicture_Data",
                 table: "BoulderingRoute");
 
             migrationBuilder.DropColumn(
-                name: "OriginalPicture",
+                name: "OriginalPicture_OriginalHeight",
+                table: "BoulderingRoute");
+
+            migrationBuilder.DropColumn(
+                name: "OriginalPicture_OriginalWidth",
                 table: "BoulderingRoute");
         }
     }

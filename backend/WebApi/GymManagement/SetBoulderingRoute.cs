@@ -4,6 +4,7 @@ using FastEndpoints;
 using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using SixLabors.ImageSharp;
 using WebApi.Common.Infrastructure;
 
 namespace WebApi.GymManagement;
@@ -17,14 +18,23 @@ internal sealed record SetBoulderingRouteRequest
         Yellow
     }
 
-    public required PayloadRequest Payload { get; init; }
-    public required IFormFile? RoutePicture { get; init; }
+    public required RoutePayload Route { get; init; }
+    public required IFormFile RoutePicture { get; init; }
 
     [PublicAPI]
-    public sealed record PayloadRequest
+    public sealed record RoutePayload
     {
         public required Guid GymId { get; init; }
         public required RouteColor Color { get; init; }
+        public required HoldDetection[] Holds { get; init; }
+    }
+
+    [PublicAPI]
+    public sealed record HoldDetection
+    {
+        public required string Segmentation { get; init; }
+        public required uint X { get; init; }
+        public required uint Y { get; init; }
     }
 }
 
@@ -38,11 +48,12 @@ internal sealed class SetBoulderingRouteValidator : Validator<SetBoulderingRoute
 {
     public SetBoulderingRouteValidator()
     {
-        RuleFor(x => x.Payload).NotNull();
+        RuleFor(x => x.Route).NotNull();
+        RuleFor(x => x.RoutePicture).NotNull();
     }
 }
 
-internal sealed class SetBoulderingRoute(AppDbContext dbContext, IRouteAnalyser routeAnalyser)
+internal sealed class SetBoulderingRoute(AppDbContext dbContext)
     : Endpoint<SetBoulderingRouteRequest, SetBoulderingRouteResponse>
 {
     public override void Configure()
@@ -54,17 +65,17 @@ internal sealed class SetBoulderingRoute(AppDbContext dbContext, IRouteAnalyser 
 
     public override async Task HandleAsync(SetBoulderingRouteRequest req, CancellationToken ct)
     {
-        var gym = await dbContext.Set<Gym>().FindAsync([req.Payload.GymId], ct);
+        var gym = await dbContext.Set<Gym>().FindAsync([req.Route.GymId], ct);
 
         if (gym is null)
         {
-            ThrowError($"Gym was not found with id '{req.Payload.GymId}'");
+            ThrowError($"Gym was not found with id '{req.Route.GymId}'");
             return;
         }
 
         var usedRoutesIndexes = await (
             from route in dbContext.Set<BoulderingRoute>()
-            where route.GymId == req.Payload.GymId
+            where route.GymId == req.Route.GymId
             select route.Index).ToArrayAsync(ct);
 
         if (usedRoutesIndexes.Length >= BoulderingRouteCode.MaxUniqueCodes)
@@ -73,25 +84,33 @@ internal sealed class SetBoulderingRoute(AppDbContext dbContext, IRouteAnalyser 
             return;
         }
 
-        var routeColor = req.Payload.Color switch
+        var routeColor = req.Route.Color switch
         {
             SetBoulderingRouteRequest.RouteColor.Yellow => BoulderingRouteColor.Yellow,
             _ => throw new ArgumentOutOfRangeException()
         };
 
+        using var pictureStream = new MemoryStream();
+        await req.RoutePicture.CopyToAsync(pictureStream, ct);
+        pictureStream.Position = 0;
+
+        var image = await Image.LoadAsync(pictureStream, ct);
+
         var boulderingRoute = BoulderingRoute.Set(
             gym.Id,
             gym.Code.Value,
             usedRoutesIndexes,
-            routeColor);
+            routeColor,
+            new OriginalPicture
+            {
+                Data = pictureStream.ToArray(),
+                OriginalWidth = (uint)image.Width,
+                OriginalHeight = (uint)image.Height
+            });
 
-        if (req.RoutePicture is not null)
-        {
-            using var pictureStream = new MemoryStream();
-            await req.RoutePicture.CopyToAsync(pictureStream, ct);
-
-            boulderingRoute.UsePicture(routeAnalyser, pictureStream.ToArray());
-        }
+        await Task.WhenAll(
+            req.Route.Holds
+                .Select(hold => AddHoldDetection(boulderingRoute, hold, ct)));
 
         await dbContext.Set<BoulderingRoute>().AddAsync(boulderingRoute, ct);
         await dbContext.SaveChangesAsync(ct);
@@ -102,5 +121,23 @@ internal sealed class SetBoulderingRoute(AppDbContext dbContext, IRouteAnalyser 
                 RouteCode = boulderingRoute.Code.Value
             },
             cancellation: ct);
+    }
+
+    private async Task AddHoldDetection(
+        BoulderingRoute route,
+        SetBoulderingRouteRequest.HoldDetection hold,
+        CancellationToken ct)
+    {
+        using var stream = new MemoryStream();
+        var segmentationFile = Files.GetFile(hold.Segmentation);
+
+        if (segmentationFile is null)
+        {
+            ThrowError($"Segmentation file '{hold.Segmentation}' was not found");
+            return;
+        }
+
+        await segmentationFile.CopyToAsync(stream, ct);
+        route.AddHoldDetection(stream.ToArray(), hold.X, hold.Y);
     }
 }

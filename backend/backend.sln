@@ -18,7 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Resources", "Resources", "{522A9589-BAFD-4401-8E2C-6D7F8838F423}"
 	ProjectSection(SolutionItems) = preProject
-		Resource\routePicture.jpg = Resource\routePicture.jpg
+		Resources\routePicture.jpg = Resources\routePicture.jpg
+		Resources\yellowHold.png = Resources\yellowHold.png
 	EndProjectSection
 EndProject
 Global

@@ -19,11 +19,23 @@ Content-Type: image/jpeg
 
 < ../Resources/routePicture.jpg
 --boundary
-Content-Disposition: form-data; name=payload
+Content-Disposition: form-data; filename="hold-a.png"; name="hold-a.png"
+Content-Type: image/png
+
+< ../Resources/yellowHold.png
+--boundary
+Content-Disposition: form-data; name=route
 Content-Type: application/json
 
 {
-  "gymId": "0192d4f2-1019-7300-a89b-6d4aa19c1e73",
-  "color": "yellow"
+  "gymId": "0192da67-d9c5-79cc-b48a-1214ba506424",
+  "color": "yellow",
+  "holds": [
+    {
+      "segmentation": "hold-a.png",
+      "x": 60,
+      "y": 500
+    }
+  ]
 }
 --boundary--

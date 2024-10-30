@@ -1,12 +1,10 @@
 using System.Text.Json.Serialization;
-using Domain.BoulderingRoutes;
 using DotNetEnv;
 using FastEndpoints;
 using Serilog;
 using WebApi;
 using WebApi.Common.Infrastructure;
 using WebApi.Common.Options;
-using WebApi.GymManagement;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,9 +22,7 @@ builder.Configuration
     .Build();
 
 builder.Services
-    .ConfigureAndValidate<YoloOptions>()
     .ConfigureAndValidate<PostgresOptions>()
-    .AddSingleton<IRouteAnalyser, YoloRouteDetector>()
     .AddScoped<IStartupService, MigrateDb>()
     .AddDbContext<AppDbContext>()
     .AddFastEndpoints()
