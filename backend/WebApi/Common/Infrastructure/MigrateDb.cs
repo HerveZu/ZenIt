@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 namespace WebApi.Common.Infrastructure;
 
 // ReSharper disable once SuggestBaseTypeForParameterInConstructor
-internal sealed class MigrateDb(AppDbContext dbContext, ILogger<MigrateDb> logger) 
+internal sealed class MigrateDb(AppDbContext dbContext, ILogger<MigrateDb> logger)
     : IStartupService
 {
     public async Task Run()

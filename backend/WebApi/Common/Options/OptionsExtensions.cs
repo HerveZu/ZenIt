@@ -4,22 +4,6 @@ internal static class OptionsExtensions
 {
     private static readonly bool _runningFromNUnit;
 
-    public static IServiceCollection ConfigureAndValidate<TOptions>(this IServiceCollection services)
-        where TOptions : class, IOptions
-    {
-        var optionsBuilder = services
-            .AddOptions<TOptions>()
-            .BindConfiguration(TOptions.Section)
-            .ValidateDataAnnotations();
-
-        if (!_runningFromNUnit)
-        {
-            optionsBuilder.ValidateOnStart();
-        }
-
-        return services;
-    }
-
     static OptionsExtensions()
     {
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -37,5 +21,21 @@ internal static class OptionsExtensions
             _runningFromNUnit = true;
             break;
         }
+    }
+
+    public static IServiceCollection ConfigureAndValidate<TOptions>(this IServiceCollection services)
+        where TOptions : class, IOptions
+    {
+        var optionsBuilder = services
+            .AddOptions<TOptions>()
+            .BindConfiguration(TOptions.Section)
+            .ValidateDataAnnotations();
+
+        if (!_runningFromNUnit)
+        {
+            optionsBuilder.ValidateOnStart();
+        }
+
+        return services;
     }
 }

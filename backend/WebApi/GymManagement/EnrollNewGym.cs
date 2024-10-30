@@ -55,7 +55,7 @@ internal sealed class EnrollNewGym(AppDbContext context) : Endpoint<EnrollNewGym
         await SendCreatedAtAsync<GetGym>(
             new
             {
-                GymId = gym.Id,
+                GymId = gym.Id
             },
             new GymDto
             {

@@ -72,7 +72,7 @@ internal sealed class SetBoulderingRouteTests : IntegrationTestsBase
             cancellationToken);
 
         await enrollmentResponse.AssertIsSuccessful();
-        var gym = await enrollmentResponse.Content.ReadFromJsonAsync<GymDto>(cancellationToken: cancellationToken);
+        var gym = await enrollmentResponse.Content.ReadFromJsonAsync<GymDto>(cancellationToken);
 
         const string holdName = "hold.png";
         var form = new MultipartFormDataContent();
@@ -118,7 +118,7 @@ internal sealed class SetBoulderingRouteTests : IntegrationTestsBase
             cancellationToken);
 
         await enrollmentResponse.AssertIsSuccessful();
-        var gym = await enrollmentResponse.Content.ReadFromJsonAsync<GymDto>(cancellationToken: cancellationToken);
+        var gym = await enrollmentResponse.Content.ReadFromJsonAsync<GymDto>(cancellationToken);
 
         const string holdName = "hold.png";
         var form = new MultipartFormDataContent();
